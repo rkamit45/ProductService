@@ -9,14 +9,14 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductDto {
+public class FakeStoreProductDto {
     private long id;
     private String title;
     private String description;
     private double price;
     private String category;
     private String image;
-    public ProductDto(int id, String title, String description, double price) {
+    public FakeStoreProductDto(int id, String title, String description, double price) {
         this.id = id;
         this.title = title;
         this.description = description;
