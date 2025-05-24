@@ -2,6 +2,7 @@ package com.capstone.productservice.controllerAdvices;
 
 import com.capstone.productservice.dtos.ExceptionDto;
 import com.capstone.productservice.dtos.ProductNotFoundExceptionDto;
+import com.capstone.productservice.exceptions.CategoryNotFoundException;
 import com.capstone.productservice.exceptions.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,5 +36,13 @@ public class ProductServiceExceptionHandler {
         exceptionDto.setMessage(ex.getMessage());
         exceptionDto.setResolutionDetails("Something went wrong");
         return new ResponseEntity<>(exceptionDto, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<ExceptionDto> handleCategoryNotFoundException(CategoryNotFoundException cnfe){
+        ExceptionDto exceptionDto = new ExceptionDto();
+        exceptionDto.setMessage(cnfe.getMessage());
+        exceptionDto.setResolutionDetails("Please create a new category.");
+        return new ResponseEntity<>(exceptionDto, HttpStatus.NOT_FOUND);
     }
 }
