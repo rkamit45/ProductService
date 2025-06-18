@@ -4,6 +4,10 @@ import com.capstone.productservice.dtos.FakeStoreProductDto;
 import com.capstone.productservice.exceptions.ProductNotFoundException;
 import com.capstone.productservice.models.Category;
 import com.capstone.productservice.models.Product;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -14,13 +18,19 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
-
 @Service
+//@Service(value="selfProductService")
+@Primary
 public class FakeStoreProductService implements ProductService {
 
+    private final RedisTemplate<String,Product> redisTemplate;
     private final RestTemplate restTemplate;
     private final String baseUrl;
-    public FakeStoreProductService(RestTemplate restTemplate) {
+    @Value("${redis.products.section}")
+    private String productSection;
+
+    public FakeStoreProductService(RedisTemplate<String, Product> redisTemplate, RestTemplate restTemplate) {
+        this.redisTemplate = redisTemplate;
         this.restTemplate = restTemplate;
         this.baseUrl = "https://fakestoreapi.com/products/";
     }
@@ -37,13 +47,25 @@ public class FakeStoreProductService implements ProductService {
 
     @Override
     public Product getProduct(long productId) throws ProductNotFoundException {
-       // throw new RuntimeException("Something went wrong");
+        // First check if the Product with input productId exists in the Redis.
+        System.out.println("productSection : "+productSection);
+//        Product product = (Product) redisTemplate.opsForHash().get("PRODUCTS", "PRODUCT_" + productId);
+        Product product = (Product) redisTemplate.opsForHash().get(productSection, "PRODUCT_" + productId);
+        if(product != null) {
+            //Product exist in Redis. Return it.
+            // Cach Hit
+            return product;
+        }
 
+        // Cash miss
         FakeStoreProductDto fakeStoreProductDto = getFakeStoreProductDto(productId);
         if (fakeStoreProductDto == null) {
             throw new ProductNotFoundException(productId,"Product with id " + productId + " doesn't exist.");
         }
-        return convertFakeStoreProductDtoToProduct(fakeStoreProductDto);
+        product = convertFakeStoreProductDtoToProduct(fakeStoreProductDto);
+//        redisTemplate.opsForHash().put("PRODUCTS", "PRODUCT_"+ productId, product);
+        redisTemplate.opsForHash().put(productSection, "PRODUCT_"+ productId, product);
+        return product;
 
     }
 

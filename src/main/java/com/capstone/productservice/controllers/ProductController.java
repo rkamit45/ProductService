@@ -19,7 +19,8 @@ import java.util.Objects;
 @RequestMapping("/products")
 public class ProductController {
     private final ProductService productService;
-    public ProductController(@Qualifier("selfProductService") ProductService productService) {
+    public ProductController(//@Qualifier("selfProductService")
+                             ProductService productService) {
         this.productService = productService;
     }
 
@@ -73,7 +74,7 @@ public class ProductController {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ExceptionDto> handleRuntimeException(RuntimeException exception) {
         ExceptionDto exceptionDto = new ExceptionDto();
-//        exception.printStackTrace();
+        exception.printStackTrace();
         exceptionDto.setMessage("Handling exception from Controller class");
         exceptionDto.setResolutionDetails(exception.getMessage());
         return new ResponseEntity<ExceptionDto>(exceptionDto, HttpStatus.INTERNAL_SERVER_ERROR);

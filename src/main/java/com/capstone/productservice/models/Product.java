@@ -5,11 +5,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
+import java.io.Serializable;
+
 @Setter
 @Getter
 @Entity
 @Table(name = "products")
-public class Product extends BaseModel {
+public class Product extends BaseModel implements Serializable {
 
     String title;
     Double price;
